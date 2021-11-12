@@ -1,126 +1,94 @@
-const db = require("../models");
-const ToDo = db.todo;
-const Op = db.Sequelize.Op;
+const { Router } = require('express');
+const ErrorResponse = require('../classes/error-response');
+const ToDo = require('../database/models/todo.model').default;
+const { asyncHandler, requireToken } = require('../middlewares/middlewares');
+const router = Router();
 
-exports.create = (req, res) => {
-    // Validate request
-    if (!req.body.title) {
-        res.status(400).send({
-            message: "Пустой запрос!"
-        });
-        return;
+function initRoutes() {
+    router.get('/', asyncHandler(requireToken), asyncHandler(getToDos));
+    router.get('/:id', asyncHandler(requireToken), asyncHandler(getToDoById));
+    router.post('/', asyncHandler(requireToken), asyncHandler(createToDo));
+    router.delete('/', asyncHandler(requireToken), asyncHandler(deleteToDos));
+    router.delete('/:id', asyncHandler(requireToken), asyncHandler(deleteToDoById));
+    router.patch('/:id', asyncHandler(requireToken), asyncHandler(updateToDoById))
+}
+
+async function getToDos(req, res, next) {
+    const todos = await ToDo.findAll({
+        where:
+        {
+            userId: req.fToken.userId
+        }
+    });
+
+    res.status(200).json({ todos });
+}
+
+async function getToDoById(req, res, next) {
+    const todo = await ToDo.findOne({
+        where:
+        {
+            id: req.params.id,
+            userId: req.fToken.userId
+        }
+    });
+
+    if (!todo) {
+        throw new ErrorResponse("ToDo is not found by id", 404);
     }
 
-    // Create a Tutorial
-    const name = {
-        title: req.body.title,
-        description: req.body.description
-    };
+    res.status(200).json(todo);
+}
 
-    // Save Tutorial in the database
-    ToDo.create(name)
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Ошибка!"
-            });
-        });
-};
-exports.findAll = (req, res) => {
-    const title = req.query.title;
-    var condition = title ? { title: { [Op.iLike]: `%${title}%` } } : null;
+async function createToDo(req, res, next) {
+    const todo = await ToDo.create({
+        ...req.body,
+        userId: req.fToken.userId
+    });
 
-    ToDo.findAll({ where: condition })
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Ошибка!"
-            });
-        });
-};
-exports.findOne = (req, res) => {
-    const id = req.params.id;
+    res.status(200).json(todo);
+}
 
-    ToDo.findByPk(id)
-        .then(data => {
-            if (data) {
-                res.send(data);
-            } else {
-                res.status(404).send({
-                    message: `Невозможно найти объект с id=${id}.`
-                });
-            }
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: "Ошибка с объектом id=" + id
-            });
-        });
-};
-exports.update = (req, res) => {
-    const id = req.params.id;
+async function deleteToDoById(req, res, next) {
+    const todo = await ToDo.findOne({
+        where:
+        {
+            id: req.params.id,
+            userId: req.fToken.userId
+        }
+    });
+    if (!todo) {
+        throw new ErrorResponse("ToDo is not found by id", 404);
+    }
+    await todo.destroy();
+    res.status(200).json(todo);
+}
 
-    ToDo.update(req.body, {
-        where: { id: id }
-    })
-        .then(num => {
-            if (num == 1) {
-                res.send({
-                    message: "Обновлено успешно."
-                });
-            } else {
-                res.send({
-                    message: `Невозможно обновить объект с id=${id}.`
-                });
-            }
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: "Ошибка обновления с id=" + id
-            });
-        });
-};
-exports.delete = (req, res) => {
-    const id = req.params.id;
+async function deleteToDos(req, res, next) {
+    let dlt = await ToDo.destroy({
+        where:
+        {
+            userId: req.fToken.userId
+        },
+        truncate: true
+    });
+    res.status(200).json({ message: dlt + " ToDos have been sucessfully deleted" });
+}
 
-    ToDo.destroy({
-        where: { id: id }
-    })
-        .then(num => {
-            if (num == 1) {
-                res.send({
-                    message: "Удалено успешно!"
-                });
-            } else {
-                res.send({
-                    message: `Невозможно удалить объект с id=${id}.`
-                });
-            }
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: "Невозможно удалить объект с id=" + id
-            });
-        });
-};
-exports.deleteAll = (req, res) => {
-    ToDo.destroy({
-        where: {},
-        truncate: false
-    })
-        .then(nums => {
-            res.send({ message: `${nums} Удалено успешно!` });
-        })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Ошибка!"
-            });
-        });
-};
+async function updateToDoById(req, res, next) {
+    const todo = await ToDo.findOne({
+        where:
+        {
+            id: req.params.id,
+            userId: req.fToken.userId
+        }
+    });
+
+    if (!todo) { throw new ErrorResponse("ToDo is not found by id", 404); }
+    await todo.update(req.body)
+    res.status(200).json(todo);
+}
+
+initRoutes();
+
+module.exports = router;
