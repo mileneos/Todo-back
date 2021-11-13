@@ -2,9 +2,9 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const app = express();
-const apiUserRouter = require('./controllers/user.controller');
-const apiTodosRouter = require('./controllers/todo.controller');
-const apiAuthRouter = require('./controllers/auth.controller');
+const apiUserRouter = require('./controllers/api-user.controller');
+const apiTodosRouter = require('./controllers/api-todos.controller');
+const apiAuthRouter = require('./controllers/api-auth.controller');
 const { notFound, errorHandler, asyncHandler } = require('./middlewares/middlewares');
 const { initDB } = require('./database');
 

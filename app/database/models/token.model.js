@@ -1,5 +1,7 @@
 const Sequelize = require('sequelize');
 const { sequelize } = require('..');
+const { nanoid } = require('nanoid');
+const { NOW } = require('sequelize');
 class Token extends Sequelize.Model { }
 Token.init(
     {
@@ -10,7 +12,7 @@ Token.init(
         },
         value: {
             type: Sequelize.STRING,
-            allowNull: false
+            defaultValue: () => nanoid(128),
         },
     }, { sequelize: sequelize, underscored: true, modelName: 'token', timestamps: true }
 );

@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { Op } = require('sequelize');
 const ErrorResponse = require('../classes/error-response');
 const User = require('../database/models/user.model');
-const Token = require('../token.model');
+const Token = require('../database/models/todo.model');
 const { asyncHandler } = require('../middlewares/middlewares');
 const { nanoid } = require('nanoid')
 
