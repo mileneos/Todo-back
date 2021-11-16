@@ -1,7 +1,6 @@
 const Sequelize = require('sequelize');
 const { sequelize } = require('..');
 const { nanoid } = require('nanoid');
-const { NOW } = require('sequelize');
 class Token extends Sequelize.Model { }
 Token.init(
     {

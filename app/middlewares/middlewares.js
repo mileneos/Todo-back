@@ -14,14 +14,13 @@ const syncHandler = (fn) => (req, res, next) => {
 };
 
 const requireToken = async (req, res, next) => {
-    // if token is in request body
+
     const token = req.header("token");
     if (!token)
     {
         throw new ErrorResponse("Token is not sent", 400)
     }
 
-    // if DB contains such token 
     const fToken = await Token.findOne({
         where:
         {
@@ -31,8 +30,7 @@ const requireToken = async (req, res, next) => {
     if(!fToken) {
         throw new ErrorResponse("Token is not found in DB", 404)
     }
-    // check if token is valid (time)
-    if (parseInt(new Date(new Date().toLocaleString("en-US")) - new Date(String(fToken.createdAt))) > 60000)
+    if (parseInt(new Date(new Date().toLocaleString("en-US")) - new Date(String(fToken.createdAt))) > 10000000)
     {
         await fToken.destroy();
         throw new ErrorResponse("Token is expired", 401)

@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const ErrorResponse = require('../classes/error-response');
-const ToDo = require('../database/models/todo.model').default;
+const ToDo = require('../database/models/todo.model');
 const { asyncHandler, requireToken } = require('../middlewares/middlewares');
 const router = Router();
 
@@ -65,14 +65,14 @@ async function deleteToDoById(req, res, next) {
 }
 
 async function deleteToDos(req, res, next) {
-    let dlt = await ToDo.destroy({
+    ToDo.destroy({
         where:
         {
             userId: req.fToken.userId
         },
         truncate: true
     });
-    res.status(200).json({ message: dlt + " ToDos have been sucessfully deleted" });
+    res.status(200).json(" ToDos have been sucessfully deleted");
 }
 
 async function updateToDoById(req, res, next) {

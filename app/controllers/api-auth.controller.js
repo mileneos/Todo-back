@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { Op } = require('sequelize');
 const ErrorResponse = require('../classes/error-response');
 const User = require('../database/models/user.model');
-const Token = require('../database/models/todo.model');
+const Token = require('../database/models/token.model');
 const { asyncHandler } = require('../middlewares/middlewares');
 const { nanoid } = require('nanoid')
 
@@ -13,12 +13,6 @@ function initRoutes() {
     router.post('/login', asyncHandler(loginUser));
     router.post('/registration', asyncHandler(regUser));
 }
-
-function validateEmail(email) {
-    var re = /\S+@\S+\.\S+/;
-    return re.test(email);
-}
-
 
 async function loginUser(req, res, next) {
     const fUser = await User.findOne({
@@ -47,11 +41,6 @@ async function regUser(req, res, next) {
             ]
         }
     })
-
-
-    if (fUser || !validateEmail(req.body.email)) {
-        throw new ErrorResponse("User is alreay exists or mail is broken", 400)
-    }
 
     const usr = await User.create(req.body)
     res.status(200).json(usr);
