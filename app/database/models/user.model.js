@@ -2,6 +2,7 @@ const ToDo = require('./todo.model');
 const Token = require("./token.model")
 const Sequelize = require('sequelize');
 const { sequelize } = require('..');
+
 class User extends Sequelize.Model {}
 
 User.init(

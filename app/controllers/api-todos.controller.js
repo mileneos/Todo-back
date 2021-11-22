@@ -65,12 +65,11 @@ async function deleteToDoById(req, res, next) {
 }
 
 async function deleteToDos(req, res, next) {
-    ToDo.destroy({
+    await ToDo.destroy({
         where:
         {
             userId: req.fToken.userId
-        },
-        truncate: true
+        }
     });
     res.status(200).json(" ToDos have been sucessfully deleted");
 }
@@ -84,7 +83,9 @@ async function updateToDoById(req, res, next) {
         }
     });
 
-    if (!todo) { throw new ErrorResponse("ToDo is not found by id", 404); }
+    if (!todo) {
+        throw new ErrorResponse("ToDo is not found by id", 404);
+    }
     await todo.update(req.body)
     res.status(200).json(todo);
 }

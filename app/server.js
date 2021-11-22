@@ -5,7 +5,7 @@ const app = express();
 const apiUserRouter = require('./controllers/api-user.controller');
 const apiTodosRouter = require('./controllers/api-todos.controller');
 const apiAuthRouter = require('./controllers/api-auth.controller');
-const { notFound, errorHandler, asyncHandler } = require('./middlewares/middlewares');
+const { notFound, errorHandler } = require('./middlewares/middlewares');
 const { initDB } = require('./database');
 
 initDB();
@@ -13,6 +13,7 @@ initDB();
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
 app.use((req, res, next) => {
     console.log('URL = ', req.url);
     console.log('Original_URL = ', req.originalUrl);
@@ -24,12 +25,13 @@ app.use((req, res, next) => {
 
     next();
 });
+
 app.use('/api/user', apiUserRouter);
 app.use('/api/todos', apiTodosRouter);
 app.use('/api/auth', apiAuthRouter);
+
 app.use(notFound);
 app.use(errorHandler);
-
 
 http.createServer(app).listen(3000, () => {
     console.log('Server is working on port 3000');

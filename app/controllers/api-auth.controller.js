@@ -4,10 +4,8 @@ const ErrorResponse = require('../classes/error-response');
 const User = require('../database/models/user.model');
 const Token = require('../database/models/token.model');
 const { asyncHandler } = require('../middlewares/middlewares');
-const { nanoid } = require('nanoid')
 
 const router = Router();
-
 
 function initRoutes() {
     router.post('/login', asyncHandler(loginUser));
@@ -22,13 +20,13 @@ async function loginUser(req, res, next) {
             password: req.body.password
         }
     })
+
     if (!fUser) {
-        throw new ErrorResponse("User is not found", 400)
+        throw new ErrorResponse("User is not found", 401)
     }
 
-
-    const token = await Token.create({ userId: fUser.id, value: nanoid(128)})
-    res.status(200).json({accessToken: token.value});
+    const token = await Token.create({ userId: fUser.id })
+    res.status(200).json({ accessToken: token.value });
 }
 
 async function regUser(req, res, next) {
@@ -42,8 +40,12 @@ async function regUser(req, res, next) {
         }
     })
 
-    const usr = await User.create(req.body)
-    res.status(200).json(usr);
+    if (fUser) {
+        throw new ErrorResponse("This email already in use", 400)
+    }
+
+    const newUser = await User.create(req.body)
+    res.statusu(200).json(newUser);
 }
 
 initRoutes();
