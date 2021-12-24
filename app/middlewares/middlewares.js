@@ -15,7 +15,7 @@ const syncHandler = (fn) => (req, res, next) => {
 
 const requireToken = async (req, res, next) => {
 
-    const token = req.header("token");
+    const token = req.header("x-access-token");
     if (!token)
     {
         throw new ErrorResponse("Token is not sent", 400)

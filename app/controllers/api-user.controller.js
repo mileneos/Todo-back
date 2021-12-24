@@ -1,6 +1,5 @@
 const { Router } = require('express');
 const ErrorResponse = require('../classes/error-response');
-const Token = require('../database/models/token.model');
 const User = require('../database/models/user.model');
 const { asyncHandler, requireToken } = require('../middlewares/middlewares');
 const router = Router();
@@ -20,7 +19,7 @@ async function getUserInfo(req, res, next) {
     });
 
     if (!fUser){
-        throw new ErrorResponse("User is not found", 400)
+        throw new ErrorResponse("User is not found", 404)
     }
 
     res.status(200).json(fUser);
@@ -35,7 +34,7 @@ async function updateUserInfo(req, res, next) {
     });
     
     if (!fUser){
-        throw new ErrorResponse("User is not found", 400)
+        throw new ErrorResponse("User is not found", 404)
     }
 
     await fUser.update(req.body)
@@ -44,7 +43,11 @@ async function updateUserInfo(req, res, next) {
 }
 
 async function logoutUser(req, res, next) {
-    await req.fToken.destroy();
+    await req.fToken.destroy({
+        where: {
+            value: req.header('x-access-token')
+        }
+    });
 
     res.status(200).json({ message: "logout is sucessfull" });
 }

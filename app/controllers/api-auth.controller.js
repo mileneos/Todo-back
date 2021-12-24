@@ -45,7 +45,7 @@ async function regUser(req, res, next) {
     }
 
     const newUser = await User.create(req.body)
-    res.statusu(200).json(newUser);
+    res.status(200).json(newUser);
 }
 
 initRoutes();
